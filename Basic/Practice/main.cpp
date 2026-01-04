@@ -1,42 +1,105 @@
-#include<gl/GLUT.h>
-#include<cmath>
+#include <GL/glut.h>
 
-void init()
-{
-    glClearColor(0,0,0,0);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0,100,0,100);
-}
+// Rotation angle
+float angle = 0.0f;
 
-void display()
-{
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(1,1,1);
-    glBegin(GL_POLYGON);
+// Function to draw a cube
+void drawCube() {
+    glBegin(GL_QUADS);
 
-    for(int i=0;i<360;i++)
-    {
-        float angle = i*3.c1416/180;
-        float x = 40+ 20*cos(angle);
-        float y = 40+ 20*sin(angle);
-        glVertex2f(x,y);
-    }
+    // Front face (Red)
+    glColor3f(1.0, 0.0, 0.0);
+    glVertex3f(-1.0, -1.0,  1.0);
+    glVertex3f( 1.0, -1.0,  1.0);
+    glVertex3f( 1.0,  1.0,  1.0);
+    glVertex3f(-1.0,  1.0,  1.0);
+
+    // Back face (Green)
+    glColor3f(0.0, 1.0, 0.0);
+    glVertex3f(-1.0, -1.0, -1.0);
+    glVertex3f(-1.0,  1.0, -1.0);
+    glVertex3f( 1.0,  1.0, -1.0);
+    glVertex3f( 1.0, -1.0, -1.0);
+
+    // Top face (Blue)
+    glColor3f(0.0, 0.0, 1.0);
+    glVertex3f(-1.0,  1.0, -1.0);
+    glVertex3f(-1.0,  1.0,  1.0);
+    glVertex3f( 1.0,  1.0,  1.0);
+    glVertex3f( 1.0,  1.0, -1.0);
+
+    // Bottom face (Yellow)
+    glColor3f(1.0, 1.0, 0.0);
+    glVertex3f(-1.0, -1.0, -1.0);
+    glVertex3f( 1.0, -1.0, -1.0);
+    glVertex3f( 1.0, -1.0,  1.0);
+    glVertex3f(-1.0, -1.0,  1.0);
+
+    // Right face (Cyan)
+    glColor3f(0.0, 1.0, 1.0);
+    glVertex3f( 1.0, -1.0, -1.0);
+    glVertex3f( 1.0,  1.0, -1.0);
+    glVertex3f( 1.0,  1.0,  1.0);
+    glVertex3f( 1.0, -1.0,  1.0);
+
+    // Left face (Magenta)
+    glColor3f(1.0, 0.0, 1.0);
+    glVertex3f(-1.0, -1.0, -1.0);
+    glVertex3f(-1.0, -1.0,  1.0);
+    glVertex3f(-1.0,  1.0,  1.0);
+    glVertex3f(-1.0,  1.0, -1.0);
 
     glEnd();
-    glFlush();
-    }
+}
 
-int main(int a, char **b)
-    {
-        glutInit(&a,b);
-        glutInitWindowSize(600,600);
-        glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-        glutCreateWindow("CIRCLE");
+// Display function
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        init();
-        glutDisplayFunc(display);
-        glutMainLoop();
+    glLoadIdentity();
+    glTranslatef(0.0f, 0.0f, -6.0f); // Move cube into screen
+    glRotatef(angle, 1.0f, 1.0f, 0.0f); // Rotate cube
 
-        return 0;
-    }
+    drawCube();
+
+    glutSwapBuffers();
+}
+
+// Timer for animation
+void timer(int) {
+    angle += 1.0f;
+    if (angle > 360) angle -= 360;
+    glutPostRedisplay();
+    glutTimerFunc(10, timer, 0);
+}
+
+// Initialization
+void init() {
+    glEnable(GL_DEPTH_TEST); // Enable depth
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+}
+
+// Reshape function
+void reshape(int w, int h) {
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0, (float)w / h, 1.0, 100.0);
+    glMatrixMode(GL_MODELVIEW);
+}
+
+// Main function
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(600, 600);
+    glutCreateWindow("3D Cube - OpenGL");
+
+    init();
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutTimerFunc(0, timer, 0);
+
+    glutMainLoop();
+    return 0;
+}
